@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using PrimeSifting.Models;
 
 namespace PrimeSifting
@@ -9,25 +10,47 @@ namespace PrimeSifting
   {
     public static void Main()
     {
-      for (int i = 0; i < 3; i++)
+      const int ITERATIONS = 300;
+      const int MAXPRIME = 10000;
+      Func<int, List<int>>[] FUNCS = {
+        Sifter.Sift,
+        Sifter.Sift2,
+        Sifter.Sift3,
+      };
+
+      CallSifter(ITERATIONS, MAXPRIME, FUNCS);
+    }
+
+    public static void CallSifter(
+      int iterations,
+      int maxPrime,
+      Func<int, List<int>>[] f
+    )
+    {
+      foreach(var siftCall in f)
       {
-        int test = 100000;
-        var watch = new System.Diagnostics.Stopwatch();
-        var watch2 = new System.Diagnostics.Stopwatch();
+        List<int> primeCount = new List<int>();
+        List<long> callCountAverage = new List<long>();
+        int callCount = 0;
 
-        watch.Start();
-        List<int> x = Sifter.Sift(test);
-        watch.Stop();
+        Console.WriteLine($"{siftCall.Method.Name}:");
 
-        Console.WriteLine($"{x.Count}");
-        Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+        for (int i = 0; i < iterations; i++)
+        {
+          var watch = new System.Diagnostics.Stopwatch();
+          callCount += 1;
 
-        watch2.Start();
-        List<int> y = Sifter.Sift2(test);
-        watch2.Stop();
+          Console.Write($"\tElapsed Time[{callCount}]: ");
 
-        Console.WriteLine($"{y.Count}");
-        Console.WriteLine($"Execution Time: {watch2.ElapsedMilliseconds} ms");
+          watch.Start();
+          primeCount = siftCall(maxPrime);
+          watch.Stop();
+
+          Console.WriteLine($"{watch.ElapsedMilliseconds} ms");
+          callCountAverage.Add(watch.ElapsedMilliseconds);
+        }
+        Console.WriteLine($"\tAverage Time: {callCountAverage.Sum() / callCount} ms");
+        Console.WriteLine($"\tPrime Count: {primeCount.Count}");
       }
     }
   }
