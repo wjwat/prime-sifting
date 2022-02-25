@@ -44,5 +44,31 @@ namespace PrimeSifting.Models
       }
       return primes;
     }
+
+    public static List<int> Sift3(int input)
+    {
+      int z = input;
+      List<int> primes = new List<int>() { 2 };
+
+      for (int x = 3; x < z; x++)
+      {
+        if (x % 2 != 0)
+        {
+          primes.Add(x);
+        }
+      }
+
+      for (int x = 3; x <= z; x++, z = primes.Last())
+      {
+        for (int i = x; i <= z; i++)
+        {
+          if (i % x == 0 && x != i)
+          {
+            primes.Remove(i);
+          }
+        }
+      }
+      return primes;
+    }
   }
 }
